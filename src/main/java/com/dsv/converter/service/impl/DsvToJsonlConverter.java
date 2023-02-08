@@ -57,7 +57,17 @@ public class DsvToJsonlConverter implements Converter {
         String[] columnNames = csvParser.getHeaderMap().keySet().toArray(new String[0]);
 
 
-        Stream<Record> dataStream = csvParser.getRecords().stream().parallel().map(record -> toData(record, columnNames));
+        // Stream<Record> dataStream = csvParser.getRecords().stream().parallel().map(record -> toData(record, columnNames));
+        try (Reader reader = Files.newBufferedReader(Paths.get(filePath));
+        	     CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT)) {
+        	    for (CSVRecord record : csvParser) {
+        	        Record data = toData(record, columnNames);
+        	        // process the data, for example by writing it to a database or a file
+        	    }
+        	} catch (IOException e) {
+        	    // handle the exception
+        	}
+
 
         Path outputPath = Paths.get(outputFile);
         try (BufferedWriter writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8)) {
